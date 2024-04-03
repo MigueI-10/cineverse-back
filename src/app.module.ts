@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './auth/entities/user.entity';
 import { MediaModule } from './media/media.module';
 import { CommentsModule } from './comments/comments.module';
+import { SharedModule } from './shared/shared.module';
 
 
 @Module({
@@ -19,7 +20,9 @@ import { CommentsModule } from './comments/comments.module';
     
       MediaModule,
     
-      CommentsModule,],
+      CommentsModule,
+    
+      SharedModule,],
   controllers: [],
   providers: [],
 })
