@@ -10,7 +10,12 @@ import { LoginResponse } from './interfaces/login-response';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+
+  private trasn
+
+  constructor(private readonly authService: AuthService) {
+    
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -61,4 +66,27 @@ export class AuthController {
   remove(@Param('id') id: string) {
     return this.authService.remove(id);
   }
+
+  // @Post('send-email/:emailTo')
+  // async sendEmail(@Param('emailTo') emailTo: string) {
+  //   try {
+  //     const result = await this.authService.sendEmail(emailTo);
+  //     return result;
+  //   } catch (error) {
+  //     return { error: error.message };
+  //   }
+  // }
+
+  @Post('activate-account')
+  async activateAccount(@Body('token') token: string): Promise<{ message: string }> {
+    try {
+      await this.authService.verifyTokenAndActivateUser(token);
+      return { message: 'Cuenta activada exitosamente' };
+    } catch (error) {
+      // Maneja el error en caso de que la verificación del token falle
+      return { message: 'Error al activar la cuenta' };
+    }
+  }
+
+
 }

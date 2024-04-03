@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsEmail, IsString, MinLength } from "class-validator";
+import { ArrayMinSize, IsArray, IsEmail, IsOptional, IsString, MinLength } from "class-validator";
 
 export class RegisterUserDto {
 
@@ -12,6 +12,7 @@ export class RegisterUserDto {
     password: string;
 
     @IsArray()
+    @IsOptional()
     @ArrayMinSize(1)
     roles?: string[];
 }

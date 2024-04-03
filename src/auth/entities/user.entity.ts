@@ -13,8 +13,10 @@ export class User {
 
     @Prop({minlength: 8, required: true})
     password?:string;
-
-    @Prop({default: true})
+    /**
+     * Cambio a false para el email
+     */
+    @Prop({default: false})
     isActive:boolean;
 
     @Prop({type: [String], default: ['user']})

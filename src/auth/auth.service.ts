@@ -12,6 +12,9 @@ import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload';
 import { LoginResponse } from './interfaces/login-response';
 
+import * as nodeMailer from 'nodemailer';
+
+
 @Injectable()
 export class AuthService {
 
@@ -51,6 +54,16 @@ export class AuthService {
   async register( registerDto: RegisterUserDto ): Promise<LoginResponse> {
 
     const user = await this.create( registerDto );
+    console.log(user);
+    console.log("-----------");
+     /**
+      * Generacion del token específico para eso
+      */
+    
+    const tokenEmail = this.getJwtToken({ id: user._id});
+    const verificationLink = `http://localhost:4200/verify-token/${tokenEmail}`;
+
+    this.sendEmail(user.email, verificationLink);
 
     return {
       user: user,
@@ -64,12 +77,19 @@ export class AuthService {
     const { email, password } = loginDto;
 
     const user = await this.userModel.findOne({ email });
+    console.log(user);
     if ( !user ) {
       throw new UnauthorizedException('Not valid credentials - email');
     }
     
     if ( !bcryptjs.compareSync( password, user.password ) ) {
       throw new UnauthorizedException('Not valid credentials - password');
+    }
+    /**
+     * para el control del email
+     */
+    if(!user.isActive){
+      throw new UnauthorizedException('The account is not verified. Please check the mail');
     }
 
     const { password:_, ...rest  } = user.toJSON();
@@ -80,6 +100,36 @@ export class AuthService {
     }
   
   }
+
+/**
+ * Verificacion del token del usuario de registro y activar su cuenta
+ */
+async verifyTokenAndActivateUser(token: string): Promise<void> {
+  try {
+    // Verifica el token JWT
+    const decoded = this.jwtService.verify(token);
+    console.log(decoded);
+
+    // Extrae el ID de usuario del token decodificado
+    const userId = decoded.id;
+    console.log("La id extraida del token es " + userId);
+
+    // Busca el usuario en la base de datos
+    const user = await this.userModel.findById(userId);
+    console.log(user);
+
+    // Si el usuario existe, actualiza su propiedad isActive a true
+    if (user) {
+      
+      await this.userModel.updateOne({ _id: userId }, { $set: { isActive: true } }); // Método para actualizar el usuario en la base de datos
+    }
+  } catch (error) {
+    // Si hay un error al verificar el token (p. ej., token inválido o expirado), maneja el error aquí
+    throw new Error('Token inválido');
+  }
+}
+
+
 
   findAll(): Promise<User[]> {
     return this.userModel.find();
@@ -127,6 +177,43 @@ export class AuthService {
   getJwtToken( payload: JwtPayload ) {
     const token = this.jwtService.sign(payload);
     return token;
+  }
+
+  async sendEmail(emailTo:string, verificationLink:string) {
+    try {
+
+      if (!emailTo) {
+        return {message: 'El correo no ha sido proporcionado.'};
+      }
+
+      const transporter = nodeMailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: `${process.env.NODEMAILER_EMAIL}`,
+          pass: `${process.env.NODEMAILER_PASS}`,
+        },
+        tls: {
+          rejectUnauthorized: false // Permite certificados autofirmados
+        }
+      });
+
+      const mailOptions = {
+        from: `${process.env.NODEMAILER_EMAIL}`,
+        to: emailTo,
+        subject: 'Registro de cineverse',
+        text: 'Text',
+        html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p><p><a href="${verificationLink}">Verifica ahora</a></p>`,
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent: ', info);
+      return 'Email sent successfully.';
+    } catch (error) {
+      console.error('Error sending email: ', error);
+      throw new Error('Failed to send email.');
+    }
   }
 
 }
