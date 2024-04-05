@@ -37,6 +37,11 @@ export class MediaController {
     return this.mediaService.findOne(id);
   }
 
+  @Get(':id/comments')
+  findCommentsFromFilm(@Param('id') id: string) {
+    return this.mediaService.getCommentsFromFilms(id);
+  }
+
   @UseGuards(AuthGuard) 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMediaDto: UpdateMediaDto) {

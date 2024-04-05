@@ -5,11 +5,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Media } from './entities/media.entity';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { Comment } from 'src/comments/entities/comment.entity';
 
 @Injectable()
 export class MediaService {
 
-  constructor(@InjectModel(Media.name) private mediaModel: Model<Media>, private jwtService: JwtService) { }
+  constructor(
+    @InjectModel(Media.name) private mediaModel: Model<Media>, 
+    @InjectModel(Comment.name) private commentModel: Model<Comment>, 
+    private jwtService: JwtService,
+  ) { }
 
 
   async create(createMediaDto: CreateMediaDto) {
@@ -36,6 +41,10 @@ export class MediaService {
 
   async findAllSeriesList() {
     return await this.mediaModel.find({ tipo: 'serie' })
+  }
+
+  async getCommentsFromFilms(id:string){
+    return await this.commentModel.find({idPelicula: id})
   }
 
   findAll() {

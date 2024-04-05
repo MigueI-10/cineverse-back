@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
 import { Media, MediaSchema } from './entities/media.entity';
+import { CommentsModule } from 'src/comments/comments.module';
 
 @Module({
   controllers: [MediaController],
@@ -22,7 +23,7 @@ import { Media, MediaSchema } from './entities/media.entity';
       signOptions: { expiresIn: '6h' },
     }),
     
-    AuthModule
+    AuthModule, CommentsModule
   ]
 })
 export class MediaModule {}
