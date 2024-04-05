@@ -38,6 +38,22 @@ export class MediaService {
     return await this.mediaModel.find({ tipo: 'pelicula' })
   }
 
+  async filterByYear(year: number){
+    return await this.mediaModel.find({ anyo: year })
+  }
+
+  async filterByPoints(points: number, filter?: string){
+
+    let query: any = { puntuacion: points }; 
+
+    if (filter === 'more') {
+      query.puntuacion = { $gt: points }; 
+    } else if (filter === 'less') {
+      query.puntuacion = { $lt: points }; 
+    }
+  
+    return await this.mediaModel.find(query);
+  }
 
   async findAllSeriesList() {
     return await this.mediaModel.find({ tipo: 'serie' })

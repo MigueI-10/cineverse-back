@@ -6,6 +6,8 @@ import { User, UserSchema } from './auth/entities/user.entity';
 import { MediaModule } from './media/media.module';
 import { CommentsModule } from './comments/comments.module';
 import { SharedModule } from './shared/shared.module';
+import { ActorModule } from './actor/actor.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 
 @Module({
@@ -22,7 +24,11 @@ import { SharedModule } from './shared/shared.module';
     
       CommentsModule,
     
-      SharedModule,],
+      SharedModule,
+    
+      ActorModule,
+    
+      FavoriteModule,],
   controllers: [],
   providers: [],
 })

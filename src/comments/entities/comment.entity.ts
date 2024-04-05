@@ -6,18 +6,18 @@ import { Media } from "src/media/entities/media.entity";
 @Schema()
 export class Comment {
 
-    @Prop({ type: 'ObjectId', ref: 'users' })
+    @Prop({ required: true, type: 'ObjectId', ref: 'users' })
     idUsuario: User;
 
-    @Prop({ type: 'ObjectId', ref: 'media' })
+    @Prop({ required: true, type: 'ObjectId', ref: 'media' })
     idPelicula: Media;
 
     _id?: string;
 
-    @Prop({ type: String })
+    @Prop({ required: true, type: String })
     contenido: string;
 
-    @Prop({ type: Date, default: Date.now })
+    @Prop({ required: true, type: Date, default: Date.now })
     fecha: Date;
 
 }

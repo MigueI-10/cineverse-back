@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
@@ -19,23 +19,37 @@ export class MediaController {
     return this.mediaService.findAll();
   }
 
-  @UseGuards(AuthGuard) 
+
   @Get('/films')
   findAllFilms() {
     return this.mediaService.findAllFilmList();
   }
 
-  @UseGuards(AuthGuard) 
+ 
   @Get('/series')
   findAllSeries() {
     return this.mediaService.findAllSeriesList();
   }
 
-  @UseGuards(AuthGuard) 
+  @Get('/byYear')
+  filterByYear(@Query('year') year: number,) {
+    return this.mediaService.filterByYear(year);
+  }
+
+  @Get('/byPoints')
+  filterByPoints(
+    @Query('points') points: number,
+    @Query('filter') filter?: string ) {
+    return this.mediaService.filterByPoints(points, filter);
+  }
+
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.mediaService.findOne(id);
   }
+
+  
 
   @Get(':id/comments')
   findCommentsFromFilm(@Param('id') id: string) {
