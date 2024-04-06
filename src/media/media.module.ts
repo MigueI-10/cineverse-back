@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
 import { Media, MediaSchema } from './entities/media.entity';
 import { CommentsModule } from 'src/comments/comments.module';
+import { FavoriteModule } from 'src/favorite/favorite.module';
 
 @Module({
   controllers: [MediaController],
@@ -23,7 +24,7 @@ import { CommentsModule } from 'src/comments/comments.module';
       signOptions: { expiresIn: '6h' },
     }),
     
-    AuthModule, CommentsModule
+    AuthModule, CommentsModule, FavoriteModule
   ]
 })
 export class MediaModule {}

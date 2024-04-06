@@ -12,8 +12,12 @@ export class Favorite {
     @Prop({ required: true, type: 'ObjectId', ref: 'media' })
     idPelicula: Media;
 
-    @Prop({ required: true })
+    @Prop({ required: true, default: false })
     esFavorito: boolean;
+
+    @Prop({type: Number,  min: 0, max: 10})
+    notaUsuario?: number;
+
 }
 
 export const FavoriteSchema = SchemaFactory.createForClass(Favorite)

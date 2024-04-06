@@ -12,9 +12,14 @@ export class FavoriteController {
     return this.favoriteService.create(createFavoriteDto);
   }
 
-  @Get()
+  @Get('')
   findAll() {
     return this.favoriteService.findAll();
+  }
+
+  @Get('user-favorite/:id')
+  findFavoritesOfAnUser(@Param('id') id: string) {
+    return this.favoriteService.findFavoritesOfAnUser(id);
   }
 
   @Get(':id')
@@ -24,7 +29,7 @@ export class FavoriteController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-    return this.favoriteService.update(+id, updateFavoriteDto);
+    return this.favoriteService.update(id, updateFavoriteDto);
   }
 
   @Delete(':id')

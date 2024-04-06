@@ -35,7 +35,7 @@ export class Media {
     @Prop({type: Number})
     duracion?: number;
 
-    @Prop({type: Number, min: 0, max: 10})
+    @Prop({required: true , type: Number, min: 0, max: 10})
     puntuacion: number;
 
 }

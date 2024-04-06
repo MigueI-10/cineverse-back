@@ -43,6 +43,11 @@ export class MediaController {
     return this.mediaService.filterByPoints(points, filter);
   }
 
+  @Get('average/:id')
+  findTheAverage(@Param('id') id: string) {
+    return this.mediaService.updateMoviePoints(id);
+  }
+
   
   @Get(':id')
   findOne(@Param('id') id: string) {

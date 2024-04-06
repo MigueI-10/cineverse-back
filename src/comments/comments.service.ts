@@ -14,6 +14,9 @@ export class CommentsService {
 
   async create(createCommentDto: CreateCommentDto) {
     try {
+
+
+      
       const commentCreated = new this.commentModel(createCommentDto);
       console.log(commentCreated);
       await commentCreated.save();
