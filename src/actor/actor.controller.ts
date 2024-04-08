@@ -19,16 +19,16 @@ export class ActorController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.actorService.findOne(+id);
+    return this.actorService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateActorDto: UpdateActorDto) {
-    return this.actorService.update(+id, updateActorDto);
+    return this.actorService.update(id, updateActorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.actorService.remove(+id);
+    return this.actorService.remove(id);
   }
 }

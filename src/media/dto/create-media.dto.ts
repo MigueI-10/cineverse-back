@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
+import { IsArray, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 
 
 export class CreateMediaDto {
@@ -15,6 +15,7 @@ export class CreateMediaDto {
     @MaxLength(255)
     titulo:      string;
 
+    @IsArray()
     @IsString({ each: true })
     @IsNotEmpty({ each: true })
     actores:     string[];

@@ -6,6 +6,8 @@ import { Media } from "src/media/entities/media.entity";
 @Schema()
 export class Favorite {
 
+    _id?: string;
+
     @Prop({ required: true, type: 'ObjectId', ref: 'users' }, )
     idUsuario: User;
 
