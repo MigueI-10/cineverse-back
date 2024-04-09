@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Types } from "mongoose";
 
 @Schema()
 export class Media {
@@ -14,8 +15,8 @@ export class Media {
     @Prop({unique: true, required: true})
     titulo:      string;
 
-    @Prop({required: true, type: [String]})
-    actores:     string[];
+    @Prop({required: true, type: [{ type: 'ObjectId', ref: 'Actor' }]})
+    actores: Types.ObjectId[];
 
     @Prop({required: true})
     director:   string;

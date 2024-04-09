@@ -102,13 +102,26 @@ export class MediaService {
   }
 
   async findOne(id: string) {
-    return this.mediaModel.findById(id);
+    
+    const pelicula = (await this.mediaModel.findById(id).populate('actores', 'nombre imagen _id'));
+    if (!pelicula) {
+        return {message: "Esta pelicula/serie no existe"}
+    }
+
+    console.log(pelicula);
+
+    return pelicula;
   }
 
   async update(id: string, updateMediaDto: UpdateMediaDto) {
 
     try {
-      
+
+      if (!updateMediaDto.actores || updateMediaDto.actores.length === 0) {
+        return { message: "Los actores de una pelicula no puede quedar vacíos" };
+      }
+
+
       const result = await this.mediaModel.findByIdAndUpdate(id, updateMediaDto, { new: true });
 
       if(!result){
