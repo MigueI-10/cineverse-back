@@ -51,6 +51,34 @@ export class AuthController {
     }
   }
 
+  @Patch('renew-password')
+  async renewPassword(@Body('email') email: string) {
+    try {
+      await this.authService.envioCorreoPass(email);
+      return { message: 'Correo enviado exitosamente' };
+    } catch (error) {
+      // Maneja el error en caso de que la verificación del token falle
+      return { message: 'Error al modificar la cuenta' };
+    }
+  }
+
+  @Patch('verify-password')
+  async verifyAndUpdatePass(
+    @Body('token') token: string,
+    @Body('password') password: string){
+
+    try {
+
+      return await this.authService.verifyNewPassword(token, password);
+      return { message: 'Contraseña actualizada exitosamente' };
+
+    } catch (error) {
+      // Maneja el error en caso de que la verificación del token falle
+      return { message: 'Error al modificar la cuenta' };
+    }
+
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(id);
@@ -84,6 +112,7 @@ export class AuthController {
       return { message: 'Cuenta activada exitosamente' };
     } catch (error) {
       // Maneja el error en caso de que la verificación del token falle
+      console.log(error.message);
       return { message: 'Error al activar la cuenta' };
     }
   }
