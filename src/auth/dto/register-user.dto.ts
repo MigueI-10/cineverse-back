@@ -8,7 +8,7 @@ export class RegisterUserDto {
     @IsString()
     name: string;
     
-    @MinLength(6)
+    @MinLength(8)
     password: string;
 
     @IsArray()

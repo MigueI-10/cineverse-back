@@ -61,7 +61,7 @@ export class AuthService {
      */
 
     const tokenEmail = this.getJwtToken({ id: user._id });
-    const verificationLink = `http://localhost:4200/verify-token/${tokenEmail}`;
+    const verificationLink = `http://localhost:4200/activate-account/${tokenEmail}`;
 
     this.sendEmail(user.email, verificationLink);
 
@@ -78,13 +78,19 @@ export class AuthService {
 
     const user = await this.userModel.findOne({ email });
     console.log(user);
-    if (!user) {
-      throw new UnauthorizedException('Not valid credentials - email');
+
+    //mejora de mensaje
+    if (!user || !bcryptjs.compareSync(password, user.password)) {
+      throw new UnauthorizedException('Not valid credentials');
     }
 
-    if (!bcryptjs.compareSync(password, user.password)) {
-      throw new UnauthorizedException('Not valid credentials - password');
-    }
+    // if (!user) {
+    //   throw new UnauthorizedException('Not valid credentials - email');
+    // }
+
+    // if (!bcryptjs.compareSync(password, user.password)) {
+    //   throw new UnauthorizedException('Not valid credentials - password');
+    // }
     /**
      * para el control del email
      */
