@@ -13,7 +13,8 @@ import { JwtPayload } from './interfaces/jwt-payload';
 import { LoginResponse } from './interfaces/login-response';
 
 import * as nodeMailer from 'nodemailer';
-
+import axios from 'axios';
+import { env } from 'process';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +52,32 @@ export class AuthService {
 
   }
 
+  async verifyRecaptcha(token: string): Promise<boolean> {
+    const secretKey = 'tu_clave_secreta';
+    const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
+      params: {
+        secret: process.env.SITE_KEY_CAPTCHA,
+        response: token,
+      },
+    });
+
+    if (response.data.success) {
+      // El token es válido, puedes continuar con el procesamiento del formulario.
+      return true;
+    } else {
+      // El token no es válido, muestra un error al usuario.
+      return false;
+    }
+  }
+
   async register(registerDto: RegisterUserDto): Promise<LoginResponse> {
+
+    const isCaptchaValid = await this.verifyRecaptcha(registerDto.tokenCaptcha);
+    if (!isCaptchaValid) {
+      throw new BadRequestException('La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.');
+    }
+
+    delete registerDto.tokenCaptcha;
 
     const user = await this.create(registerDto);
     console.log(user);
@@ -202,7 +228,7 @@ export class AuthService {
   async verifyNewPassword(token: string, newPassword: string) {
 
     try {
-
+      console.log(token);
       if (!token) {
         return { message: 'No hay token de reestablecimiento' };
       }
@@ -210,11 +236,27 @@ export class AuthService {
       if (!newPassword) {
         return { message: 'No has introducido la contraseña' };
       }
-
+     
       // Verifica el token JWT
-      const decoded = this.jwtService.verify(token);
-      console.log(decoded);
-
+      // const decoded = this.jwtService.verify(token);
+      // console.log("Token decodificado: ", decoded);
+      // if (decoded === null || decoded === undefined) {
+      //   console.log('te vas de aqui bobo')
+      //   throw new Error('El token proporcionado no es válido o ha expirado');
+      // }
+      let  decoded 
+      try {
+        // Verifica el token JWT
+         decoded = this.jwtService.verify(token);
+        console.log("Token decodificado: ", decoded);
+        
+        // Resto del código para manejar el token decodificado...
+    } catch (error) {
+        throw new Error('Token inválido');
+        // Aquí puedes agregar código para manejar el error, como devolver un mensaje de error específico
+        //return { message: error.message };
+    }
+      
       // Extrae el ID de usuario del token decodificado
       const userId = decoded.id;
       console.log("La id extraida del token es " + userId);
@@ -229,15 +271,16 @@ export class AuthService {
 
 
       if (newPassword) {
+        console.log("llega al final");
         // Encriptar la nueva contraseña
         const hashedPassword = bcryptjs.hashSync(newPassword, 10);
         // Actualizar el usuario con la contraseña encriptada
-        return await this.userModel.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
+         await this.userModel.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
 
       }
 
     } catch (error) {
-      return { message: error.message }
+      throw new Error('Token inválido');
     }
 
 
@@ -435,7 +478,7 @@ export class AuthService {
       };
 
       const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent: ', info);
+      //console.log('Email sent: ', info);
       return 'Email sent successfully.';
     } catch (error) {
       console.error('Error sending email: ', error);

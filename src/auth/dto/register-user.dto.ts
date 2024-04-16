@@ -11,6 +11,10 @@ export class RegisterUserDto {
     @MinLength(8)
     password: string;
 
+    @IsString()
+    @IsOptional()
+    tokenCaptcha: string;
+
     @IsArray()
     @IsOptional()
     @ArrayMinSize(1)
