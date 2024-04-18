@@ -97,8 +97,8 @@ export class MediaService {
     }
   }
 
-  findAll() {
-    return `This action returns all media`;
+  async findAll() {
+    return await this.mediaModel.find({})
   }
 
   async findOne(id: string) {
