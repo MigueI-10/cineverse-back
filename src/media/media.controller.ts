@@ -11,6 +11,7 @@ export class MediaController {
   @UseGuards(AuthGuard) 
   @Post()
   create(@Body() createMediaDto: CreateMediaDto) {
+    console.log(createMediaDto)
     return this.mediaService.create(createMediaDto);
   }
 
