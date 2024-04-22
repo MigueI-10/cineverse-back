@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import * as bcryptjs from 'bcryptjs';
 
@@ -236,27 +236,22 @@ export class AuthService {
       if (!newPassword) {
         return { message: 'No has introducido la contraseña' };
       }
-     
+
       // Verifica el token JWT
-      // const decoded = this.jwtService.verify(token);
-      // console.log("Token decodificado: ", decoded);
-      // if (decoded === null || decoded === undefined) {
-      //   console.log('te vas de aqui bobo')
-      //   throw new Error('El token proporcionado no es válido o ha expirado');
-      // }
-      let  decoded 
+
+      let decoded
       try {
         // Verifica el token JWT
-         decoded = this.jwtService.verify(token);
+        decoded = this.jwtService.verify(token);
         console.log("Token decodificado: ", decoded);
-        
+
         // Resto del código para manejar el token decodificado...
-    } catch (error) {
+      } catch (error) {
         throw new Error('Token inválido');
         // Aquí puedes agregar código para manejar el error, como devolver un mensaje de error específico
         //return { message: error.message };
-    }
-      
+      }
+
       // Extrae el ID de usuario del token decodificado
       const userId = decoded.id;
       console.log("La id extraida del token es " + userId);
@@ -275,7 +270,7 @@ export class AuthService {
         // Encriptar la nueva contraseña
         const hashedPassword = bcryptjs.hashSync(newPassword, 10);
         // Actualizar el usuario con la contraseña encriptada
-         await this.userModel.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
+        await this.userModel.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
 
       }
 
@@ -286,6 +281,23 @@ export class AuthService {
 
   }
 
+  async banUser(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      return { error: 'El objectId proporcionado no es valido' }
+    }
+
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      return { message: 'El usuario no existe.' };
+    }
+
+    const userEmail = user.email
+    const userName = user.name
+
+    await this.userModel.updateOne({ _id: user._id }, { $set: { isActive: false } });
+
+    this.sendEmailBannedUser(userEmail, userName)
+  }
 
   getJwtToken(payload: JwtPayload) {
     const token = this.jwtService.sign(payload);
@@ -486,6 +498,98 @@ export class AuthService {
     }
   }
 
+  async sendEmailBannedUser(emailTo: string, username: string){
+    try {
+
+      if (!emailTo) {
+        return { message: 'El correo no ha sido proporcionado.' };
+      }
+      const transporter = nodeMailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: `${process.env.NODEMAILER_EMAIL}`,
+          pass: `${process.env.NODEMAILER_PASS}`,
+        },
+        tls: {
+          rejectUnauthorized: false // Permite certificados autofirmados
+        }
+      });
+
+      const mailOptions = {
+        from: `${process.env.NODEMAILER_EMAIL}`,
+        to: emailTo,
+        subject: 'Aviso de Usuario Baneado de Cineverse',
+        text: 'Text',
+        html: `<!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Email Template</title>
+            <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+            .btn {
+              background: #00bb2d;
+              background-image: -webkit-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -moz-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -ms-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -o-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: linear-gradient(to bottom, #00bb2d, #2980b9);
+              -webkit-border-radius: 28;
+              -moz-border-radius: 28;
+              border-radius: 28px;
+              font-family: Arial;
+            
+              font-size: 20px;
+              padding: 10px 20px 10px 20px;
+              text-decoration: none;
+            }
+            
+            .btn:hover {
+              background: #3cb0fd;
+              background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+              text-decoration: none;
+            }
+            
+            </style>
+        </head>
+        
+        <body>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <h1 class="mt-4">Has sido baneado de la plataforma!</h1>
+                        <p>Hello ${username}:</p>
+                        <p>Lamentamos informarte que tu cuenta ha sido suspendida temporalmente debido a una violación de nuestros términos de servicio. La suspensión es efectiva de inmediato y tu acceso a la plataforma ha sido restringido durante un periodo de 15 días.</p>
+                        <p class="lead">Razón del Baneo: <strong>Comentarios Ofensivos y con Spoilers al resto de usuarios</strong></p>
+
+                        <p>Ten en cuenta que si se repite esta conducta, tu cuenta será suspendida indefinidamente.</p>
+                        
+                        <p>Gracias,
+                        El Equipo de Cineverse</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        
+        </html>`,
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      //console.log('Email sent: ', info);
+      return 'Email sent successfully.';
+    } catch (error) {
+      console.error('Error sending email: ', error);
+      throw new Error('Failed to send email.');
+    }
+  }
 
 
 }

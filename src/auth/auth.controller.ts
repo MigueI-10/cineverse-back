@@ -11,8 +11,6 @@ import { LoginResponse } from './interfaces/login-response';
 @Controller('auth')
 export class AuthController {
 
-  private trasn
-
   constructor(private readonly authService: AuthService) {
     
   }
@@ -48,6 +46,19 @@ export class AuthController {
     return {
       user:user,
       token: this.authService.getJwtToken({ id: user._id })
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('ban-user/:id')
+  async banUser(@Param('id') id: string) {
+    try {
+      
+      await this.authService.banUser(id);
+      return { message: 'Usuario baneado exitosamente' };
+    } catch (error) {
+      // Maneja el error en caso de que la verificación del token falle
+      return { message: 'Error al banear al usuario' };
     }
   }
 

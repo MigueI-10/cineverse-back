@@ -8,14 +8,16 @@ import { JwtService } from '@nestjs/jwt';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { FavoriteService } from 'src/favorite/favorite.service';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class MediaService {
 
   constructor(
-    @InjectModel(Media.name) private mediaModel: Model<Media>, 
-    @InjectModel(Comment.name) private commentModel: Model<Comment>, 
-    @InjectModel(Favorite.name) private favoriteModel: Model<Favorite>, 
+    @InjectModel(Media.name) private mediaModel: Model<Media>,
+    @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    @InjectModel(Favorite.name) private favoriteModel: Model<Favorite>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private favoriteService: FavoriteService,
     private jwtService: JwtService,
   ) { }
@@ -42,20 +44,20 @@ export class MediaService {
     return await this.mediaModel.find({ tipo: 'pelicula' })
   }
 
-  async filterByYear(year: number){
+  async filterByYear(year: number) {
     return await this.mediaModel.find({ anyo: year })
   }
 
-  async filterByPoints(points: number, filter?: string){
+  async filterByPoints(points: number, filter?: string) {
 
-    let query: any = { puntuacion: points }; 
+    let query: any = { puntuacion: points };
 
     if (filter === 'more') {
-      query.puntuacion = { $gt: points }; 
+      query.puntuacion = { $gt: points };
     } else if (filter === 'less') {
-      query.puntuacion = { $lt: points }; 
+      query.puntuacion = { $lt: points };
     }
-  
+
     return await this.mediaModel.find(query);
   }
 
@@ -63,25 +65,28 @@ export class MediaService {
     return await this.mediaModel.find({ tipo: 'serie' })
   }
 
-  async getCommentsFromFilms(id:string){
-    return await this.commentModel.find({idPelicula: id})
+  async getCommentsFromFilms(id: string) {
+    return await this.commentModel.find({ idPelicula: id })
+                                  .populate('idUsuario', 'name _id');
+
+    
   }
 
-  async updateMoviePoints(movieId: string){
+  async updateMoviePoints(movieId: string) {
 
     if (!Types.ObjectId.isValid(movieId)) {
-      return { error:  'El object id no es valido'} 
+      return { error: 'El object id no es valido' }
     }
 
     const movieObjectId = new Types.ObjectId(movieId);
-  
+
     const existingResult = await this.favoriteModel.findOne({
       idPelicula: movieObjectId,
     });
 
     // Si ya existe un favorito, retorna un error
     if (!existingResult) {
-      return { error:  'Esta pelicula no existe'} 
+      return { error: 'Esta pelicula no existe' }
     }
 
     const averagePoints = await this.favoriteService.calculateAverageRatingForMovie(movieId);
@@ -89,7 +94,7 @@ export class MediaService {
     if (averagePoints !== null) {
       // Actualizar la película con la media de las notas
       console.log(averagePoints);
-      console.log(typeof(averagePoints));
+      console.log(typeof (averagePoints));
       await this.mediaModel.updateOne({ _id: movieId }, { puntuacion: averagePoints });
       return { message: 'Media de notas actualizada correctamente.' };
     } else {
@@ -102,10 +107,10 @@ export class MediaService {
   }
 
   async findOne(id: string) {
-    
+
     const pelicula = (await this.mediaModel.findById(id).populate('actores', 'nombre imagen _id'));
     if (!pelicula) {
-        return {message: "Esta pelicula/serie no existe"}
+      return { message: "Esta pelicula/serie no existe" }
     }
 
     console.log(pelicula);
@@ -124,14 +129,14 @@ export class MediaService {
 
       const result = await this.mediaModel.findByIdAndUpdate(id, updateMediaDto, { new: true });
 
-      if(!result){
-        return {message: "No se encontró ningún documento con este id"};
+      if (!result) {
+        return { message: "No se encontró ningún documento con este id" };
       }
 
-      return {message: "Pelicula actualizada correctamente"};
+      return { message: "Pelicula actualizada correctamente" };
 
     } catch (error) {
-      return {error: error.message } 
+      return { error: error.message }
     }
 
   }
@@ -142,9 +147,9 @@ export class MediaService {
       if (!result) {
         throw new Error(`No se encontró ningún documento con el ID ${id}`);
       }
-      return {message: "Pelicula eliminada correctamente"};
+      return { message: "Pelicula eliminada correctamente" };
     } catch (error) {
-      return {error: error.message }      
+      return { error: error.message }
     }
   }
 }

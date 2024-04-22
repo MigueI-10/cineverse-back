@@ -21,6 +21,6 @@ import { HttpModule } from '@nestjs/axios';
       secret: process.env.JWT_WORD,
       signOptions: { expiresIn: '6h' },
     }), HttpModule
-  ], exports:[AuthService]
+  ], exports:[AuthService, MongooseModule.forFeature([{name: User.name, schema: UserSchema}])]
 })
 export class AuthModule {}

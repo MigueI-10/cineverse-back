@@ -6,7 +6,7 @@ import { Media } from "src/media/entities/media.entity";
 @Schema()
 export class Comment {
 
-    @Prop({ required: true, type: 'ObjectId', ref: 'users' })
+    @Prop({ required: true, type: 'ObjectId', ref: 'User' })
     idUsuario: User;
 
     @Prop({ required: true, type: 'ObjectId', ref: 'media' })
