@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { SearchMediaDto } from './dto/search-media.dto';
+import { Media } from './entities/media.entity';
 
 @Controller('media')
 export class MediaController {
@@ -20,6 +22,10 @@ export class MediaController {
     return this.mediaService.findAll();
   }
 
+  @Get('search')
+  async searchMedia(@Query(ValidationPipe) searchMediaDto: SearchMediaDto): Promise<Media[]> {
+    return this.mediaService.searchMedia(searchMediaDto);
+  }
 
   @Get('/films')
   findAllFilms() {

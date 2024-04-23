@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Favorite } from './entities/favorite.entity';
 import { Model, Types } from 'mongoose';
 import { createWriteStream } from 'fs';
+import { SearchFavoriteDto } from './dto/search-favorite.dto';
 
 @Injectable()
 export class FavoriteService {
@@ -48,6 +49,19 @@ export class FavoriteService {
       return { error: error.message }
     }
 
+  }
+
+  async searchFavorite(searchFavoriteDto: SearchFavoriteDto): Promise<Favorite[]> {
+    const { search = [], limit = 15, skip = 0 } = searchFavoriteDto;
+
+
+    const results = await this.favoriteModel
+      .find({ titulo: { $regex: search, $options: 'i' } }) 
+      .select('_id imagen titulo')
+      .limit(+limit)
+      .skip(+skip);
+
+    return results;
   }
 
   async findFavoritesOfAnUser(usuarioId: string){
@@ -114,7 +128,6 @@ export class FavoriteService {
       return { error:  'Esta pelicula  no existe'} 
     }
     
-
     const result = await this.favoriteModel.aggregate([
       {
         $match: {

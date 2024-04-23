@@ -9,6 +9,7 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { FavoriteService } from 'src/favorite/favorite.service';
 import { User } from 'src/auth/entities/user.entity';
+import { SearchMediaDto } from './dto/search-media.dto';
 
 @Injectable()
 export class MediaService {
@@ -68,9 +69,23 @@ export class MediaService {
   async getCommentsFromFilms(id: string) {
     return await this.commentModel.find({ idPelicula: id })
                                   .populate('idUsuario', 'name _id');
-
-    
+  
   }
+
+  async searchMedia(searchMediaDto: SearchMediaDto): Promise<Media[]> {
+    const { search = '', limit = 15, skip = 0 } = searchMediaDto;
+
+    if (search == '') return
+
+    const results = await this.mediaModel
+      .find({ titulo: { $regex: search, $options: 'i' } }) 
+      .select('_id imagen titulo')
+      .limit(+limit)
+      .skip(+skip);
+
+    return results;
+  }
+
 
   async updateMoviePoints(movieId: string) {
 

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
+import { SearchFavoriteDto } from './dto/search-favorite.dto';
+import { Favorite } from './entities/favorite.entity';
 
 @Controller('favorite')
 export class FavoriteController {
@@ -15,6 +17,11 @@ export class FavoriteController {
   @Get('')
   findAll() {
     return this.favoriteService.findAll();
+  }
+
+  @Get('filter')
+  async searchMedia(@Query(ValidationPipe) searchFavoriteDto: SearchFavoriteDto): Promise<Favorite[]> {
+    return this.favoriteService.searchFavorite(searchFavoriteDto);
   }
 
   @Get('user-favorite/:id')
