@@ -44,7 +44,8 @@ export class FavoriteService {
 
       const createdFavorite = new this.favoriteModel(createFavoriteDto);
       console.log(createdFavorite);
-      return createdFavorite.save();
+      await createdFavorite.save();
+      return { message: `Favorito creado correctamente` };
     } catch (error) {
       return { error: error.message }
     }
@@ -78,7 +79,7 @@ export class FavoriteService {
 
     // Si no existe el usuario, retorna un error
     if (!existingResult) {
-      return { error:  'Este usuario no existe'} 
+      return { error:  'Este usuario no tiene registros de favoritos'} 
     }
 
     // Aplicar la agregación
@@ -177,7 +178,15 @@ export class FavoriteService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} favorite`;
+  async remove(id: string) {
+    try {
+      const result = await this.favoriteModel.findByIdAndDelete(id);
+      if (!result) {
+        throw new Error(`No se encontró ningún documento con el ID ${id}`);
+      }
+      return { message: "Favorito eliminado correctamente" };
+    } catch (error) {
+      return { error: error.message }
+    }
   }
 }

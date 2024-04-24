@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ValidationPipe, UseGuards } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 import { SearchFavoriteDto } from './dto/search-favorite.dto';
 import { Favorite } from './entities/favorite.entity';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('favorite')
 export class FavoriteController {
@@ -24,6 +25,7 @@ export class FavoriteController {
     return this.favoriteService.searchFavorite(searchFavoriteDto);
   }
 
+  @UseGuards(AuthGuard) 
   @Get('user-favorite/:id')
   findFavoritesOfAnUser(@Param('id') id: string) {
     return this.favoriteService.findFavoritesOfAnUser(id);
@@ -39,8 +41,9 @@ export class FavoriteController {
     return this.favoriteService.update(id, updateFavoriteDto);
   }
 
+  @UseGuards(AuthGuard) 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.favoriteService.remove(+id);
+    return this.favoriteService.remove(id);
   }
 }

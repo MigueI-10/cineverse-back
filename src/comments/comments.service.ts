@@ -16,7 +16,6 @@ export class CommentsService {
     try {
 
 
-      
       const commentCreated = new this.commentModel(createCommentDto);
       console.log(commentCreated);
       await commentCreated.save();
