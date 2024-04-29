@@ -31,6 +31,14 @@ export class FavoriteController {
     return this.favoriteService.findFavoritesOfAnUser(id);
   }
 
+  @UseGuards(AuthGuard) 
+  @Get('checkFavorite/:idUser/:idMedia')
+  findFavoriteUserFilm(
+    @Param('idUser') idUser: string,
+    @Param('idMedia') idMedia: string) {
+    return this.favoriteService.findFavoriteUserFilm(idUser, idMedia);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.favoriteService.findOne(+id);

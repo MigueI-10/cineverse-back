@@ -44,8 +44,8 @@ export class FavoriteService {
 
       const createdFavorite = new this.favoriteModel(createFavoriteDto);
       console.log(createdFavorite);
-      await createdFavorite.save();
-      return { message: `Favorito creado correctamente` };
+      return await createdFavorite.save();
+      // return { message: `Favorito creado correctamente` };
     } catch (error) {
       return { error: error.message }
     }
@@ -112,6 +112,30 @@ export class FavoriteService {
     ]).exec();
   }
 
+  async findFavoriteUserFilm(idUser: string, idMedia: string){
+
+    if (!Types.ObjectId.isValid(idUser)) {
+      return { error:  'El object id no es valido'} 
+    }
+
+    if (!Types.ObjectId.isValid(idMedia)) {
+      return { error:  'El object id no es valido'} 
+    }
+
+    const existingResult = await this.favoriteModel.findOne({
+      idUsuario: idUser,
+      idPelicula: idMedia
+    });
+
+    // Si no existe el usuario, retorna un error
+    if (!existingResult) {
+      // return { error:  'Este usuario no tiene registros de favoritos'} 
+      throw new Error(`Este usuario no tiene registros de favoritos`);
+    }
+    
+    return existingResult
+  }
+
   async calculateAverageRatingForMovie(movieId: string) {
 
     if (!Types.ObjectId.isValid(movieId)) {
@@ -170,7 +194,7 @@ export class FavoriteService {
       if (!result) {
         return { message: "No se encontró ningún documento con este id" };
       }
-
+      console.log(result)
       return { message: "Favoritos actualizados correctamente" };
 
     } catch (error) {
