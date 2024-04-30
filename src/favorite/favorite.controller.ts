@@ -32,6 +32,12 @@ export class FavoriteController {
   }
 
   @UseGuards(AuthGuard) 
+  @Get('user-ratings/:id')
+  findRatingsOfAnUser(@Param('id') id: string) {
+    return this.favoriteService.findRatingsOfAnUser(id);
+  }
+
+  @UseGuards(AuthGuard) 
   @Get('checkFavorite/:idUser/:idMedia')
   findFavoriteUserFilm(
     @Param('idUser') idUser: string,

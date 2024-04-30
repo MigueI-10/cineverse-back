@@ -112,6 +112,54 @@ export class FavoriteService {
     ]).exec();
   }
 
+  async findRatingsOfAnUser(usuarioId: string){
+
+    if (!Types.ObjectId.isValid(usuarioId)) {
+      return { error:  'El object id no es valido'} 
+    }
+
+    const usuarioObjectId = new Types.ObjectId(usuarioId);
+
+    const existingResult = await this.favoriteModel.findOne({
+      idUsuario: usuarioObjectId,
+      notaUsuario: { $exists: true }
+    });
+
+    // Si no existe el usuario, retorna un error
+    if (!existingResult) {
+      return { error:  'Este usuario no tiene registros de favoritos'} 
+    }
+
+    // Aplicar la agregación
+    return this.favoriteModel.aggregate([
+      { 
+        $match: { 
+          "idUsuario": usuarioObjectId, 
+          "notaUsuario": { $exists: true } 
+        } 
+      },
+      {
+        $lookup: {
+          from: "media", // Nombre de la colección de media
+          localField: "idPelicula",
+          foreignField: "_id",
+          as: "pelicula"
+        }
+      },
+      { 
+        $unwind: "$pelicula" 
+      },
+      {
+        $project: {
+          "idPelicula": "$pelicula._id",
+          "titulo": "$pelicula.titulo",
+          "imagen": "$pelicula.imagen",
+          "notaUsuario": "$notaUsuario" // Corregido para reflejar el nombre del campo en la colección de favoritos
+        }
+      }
+    ]).exec();
+  }
+
   async findFavoriteUserFilm(idUser: string, idMedia: string){
 
     if (!Types.ObjectId.isValid(idUser)) {
