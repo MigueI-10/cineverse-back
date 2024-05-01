@@ -164,7 +164,10 @@ export class AuthService {
 
 
   findAll(): Promise<User[]> {
-    return this.userModel.find();
+    return this.userModel.find().select('-roles -password').exec();;
+  }
+  findByBan(ban: boolean): Promise<User[]> {
+    return this.userModel.find({estado: ban}).select('-roles -password').exec();;
   }
 
   async findUserById(id: string) {

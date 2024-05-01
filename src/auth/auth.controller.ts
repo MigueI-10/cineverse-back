@@ -36,6 +36,12 @@ export class AuthController {
     return this.authService.findAll();
   }
 
+  @UseGuards( AuthGuard )
+  @Get('user-list/:ban')
+  findByBan( @Param('ban') ban: boolean) {
+    return this.authService.findByBan(ban);
+  }
+
   @UseGuards(AuthGuard)
   @Get('check-token')
   regenerateToken(@Request() req: Request ):LoginResponse{
