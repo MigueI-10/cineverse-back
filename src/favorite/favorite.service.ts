@@ -55,7 +55,6 @@ export class FavoriteService {
   async searchFavorite(searchFavoriteDto: SearchFavoriteDto): Promise<Favorite[]> {
     const { search = [], limit = 15, skip = 0 } = searchFavoriteDto;
 
-
     const results = await this.favoriteModel
       .find({ titulo: { $regex: search, $options: 'i' } }) 
       .select('_id imagen titulo')

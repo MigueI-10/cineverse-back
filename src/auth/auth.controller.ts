@@ -38,8 +38,17 @@ export class AuthController {
 
   @UseGuards( AuthGuard )
   @Get('user-list/:ban')
-  findByBan( @Param('ban') ban: boolean) {
-    return this.authService.findByBan(ban);
+  findByBan( @Param('ban') ban: string) {
+    const banBoolean = ban.toLowerCase() === 'true';
+
+    let param :boolean
+
+    if(banBoolean === true){
+      param = true
+    }else{
+      param = false
+    }
+    return this.authService.findByBan(param);
   }
 
   @UseGuards(AuthGuard)
@@ -65,6 +74,19 @@ export class AuthController {
     } catch (error) {
       // Maneja el error en caso de que la verificación del token falle
       return { message: 'Error al banear al usuario' };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('unban-user/:id')
+  async unbanUser(@Param('id') id: string) {
+    try {
+      
+      await this.authService.unBanUser(id);
+      return { message: 'Usuario desbaneado exitosamente' };
+    } catch (error) {
+      // Maneja el error en caso de que la verificación del token falle
+      return { message: 'Error al desbanear al usuario' };
     }
   }
 

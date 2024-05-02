@@ -167,7 +167,9 @@ export class AuthService {
     return this.userModel.find().select('-roles -password').exec();;
   }
   findByBan(ban: boolean): Promise<User[]> {
-    return this.userModel.find({estado: ban}).select('-roles -password').exec();;
+    console.log(ban)
+    // let baneo = parse() .select('-roles -password').exec()
+    return this.userModel.find({isActive: ban}).select('-roles -password');
   }
 
   async findUserById(id: string) {
@@ -300,6 +302,24 @@ export class AuthService {
     await this.userModel.updateOne({ _id: user._id }, { $set: { isActive: false } });
 
     this.sendEmailBannedUser(userEmail, userName)
+  }
+
+  async unBanUser(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      return { error: 'El objectId proporcionado no es valido' }
+    }
+
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      return { message: 'El usuario no existe.' };
+    }
+
+    const userEmail = user.email
+    const userName = user.name
+
+    await this.userModel.updateOne({ _id: user._id }, { $set: { isActive: true } });
+
+    this.sendEmailUnBanUser(userEmail, userName)
   }
 
   getJwtToken(payload: JwtPayload) {
@@ -574,6 +594,99 @@ export class AuthService {
                         <p class="lead">Razón del Baneo: <strong>Comentarios Ofensivos y con Spoilers al resto de usuarios</strong></p>
 
                         <p>Ten en cuenta que si se repite esta conducta, tu cuenta será suspendida indefinidamente.</p>
+                        
+                        <p>Gracias,
+                        El Equipo de Cineverse</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        
+        </html>`,
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      //console.log('Email sent: ', info);
+      return 'Email sent successfully.';
+    } catch (error) {
+      console.error('Error sending email: ', error);
+      throw new Error('Failed to send email.');
+    }
+  }
+
+  async sendEmailUnBanUser(emailTo: string, username: string){
+    try {
+
+      if (!emailTo) {
+        return { message: 'El correo no ha sido proporcionado.' };
+      }
+      const transporter = nodeMailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: `${process.env.NODEMAILER_EMAIL}`,
+          pass: `${process.env.NODEMAILER_PASS}`,
+        },
+        tls: {
+          rejectUnauthorized: false // Permite certificados autofirmados
+        }
+      });
+
+      const mailOptions = {
+        from: `${process.env.NODEMAILER_EMAIL}`,
+        to: emailTo,
+        subject: 'Aviso de Eliminación de Baneo de Cineverse',
+        text: 'Text',
+        html: `<!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Email Template</title>
+            <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+            .btn {
+              background: #00bb2d;
+              background-image: -webkit-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -moz-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -ms-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: -o-linear-gradient(top, #00bb2d, #2980b9);
+              background-image: linear-gradient(to bottom, #00bb2d, #2980b9);
+              -webkit-border-radius: 28;
+              -moz-border-radius: 28;
+              border-radius: 28px;
+              font-family: Arial;
+            
+              font-size: 20px;
+              padding: 10px 20px 10px 20px;
+              text-decoration: none;
+            }
+            
+            .btn:hover {
+              background: #3cb0fd;
+              background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+              background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+              text-decoration: none;
+            }
+            
+            </style>
+        </head>
+        
+        <body>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <h1 class="mt-4">Has sido desbaneado de la plataforma!</h1>
+                        <p>Hola ${username}:</p>
+                        <p>Tenemos buenas noticias, te informamos de que tu cuenta ha sido desbloqueada. Hemos levantado la suspensión temporal de tu cuenta.</p>
+                        <p class="lead">Razón del Desbaneo: <strong>Finalización del periodo de baneo</strong></p>
+
+                        <p>Ten en cuenta que si se repite esta conducta negativa, tu cuenta será suspendida indefinidamente.</p>
                         
                         <p>Gracias,
                         El Equipo de Cineverse</p>
