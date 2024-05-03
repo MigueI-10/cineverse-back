@@ -45,6 +45,11 @@ export class MediaService {
     return await this.mediaModel.find({ tipo: 'pelicula' })
   }
 
+  async findAllGenres() {
+    return await this.mediaModel.distinct("genero");
+  }
+
+
   async filterByYear(year: number) {
     return await this.mediaModel.find({ anyo: year })
   }

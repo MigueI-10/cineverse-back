@@ -38,6 +38,11 @@ export class MediaController {
     return this.mediaService.findAllSeriesList();
   }
 
+  @Get('/genres')
+  findAllGenres() {
+    return this.mediaService.findAllGenres();
+  }
+
   @Get('/byYear')
   filterByYear(@Query('year') year: number,) {
     return this.mediaService.filterByYear(year);
@@ -55,7 +60,6 @@ export class MediaController {
     return this.mediaService.updateMoviePoints(id);
   }
 
-  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.mediaService.findOne(id);
