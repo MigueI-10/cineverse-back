@@ -10,6 +10,7 @@ import { Favorite } from 'src/favorite/entities/favorite.entity';
 import { FavoriteService } from 'src/favorite/favorite.service';
 import { User } from 'src/auth/entities/user.entity';
 import { SearchMediaDto } from './dto/search-media.dto';
+import { FilterMediaDto } from './dto/filter-media.dto';
 
 @Injectable()
 export class MediaService {
@@ -89,6 +90,32 @@ export class MediaService {
       .skip(+skip);
 
     return results;
+  }
+
+  async filterMedia(filterMediaDto: FilterMediaDto): Promise<Media[]> {
+
+    console.log(filterMediaDto);
+    const { nota, anyo, duracion, episodios, tipo, generos, limit = 10, skip = 0 } = filterMediaDto;
+
+    console.log("-------------");
+    console.log(tipo, nota, generos, anyo, episodios, duracion, limit);
+
+    const filter = {}
+
+    if(tipo !== undefined){
+      filter['tipo'] = { $in: [].concat(tipo) }
+    }
+
+    return await this.mediaModel.find(filter);
+    // if (search == '') return
+
+    // const results = await this.mediaModel
+    //   .find({ titulo: { $regex: search, $options: 'i' } }) 
+    //   .select('_id imagen titulo')
+    //   .limit(+limit)
+    //   .skip(+skip);
+
+     return [];
   }
 
 

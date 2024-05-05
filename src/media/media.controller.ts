@@ -5,6 +5,7 @@ import { UpdateMediaDto } from './dto/update-media.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { SearchMediaDto } from './dto/search-media.dto';
 import { Media } from './entities/media.entity';
+import { FilterMediaDto } from './dto/filter-media.dto';
 
 @Controller('media')
 export class MediaController {
@@ -25,6 +26,11 @@ export class MediaController {
   @Get('search')
   async searchMedia(@Query(ValidationPipe) searchMediaDto: SearchMediaDto): Promise<Media[]> {
     return this.mediaService.searchMedia(searchMediaDto);
+  }
+
+  @Get('filter')
+  async filterByQueryMedia(@Query(ValidationPipe) filterMediaDto: FilterMediaDto): Promise<Media[]> {
+    return this.mediaService.filterMedia(filterMediaDto);
   }
 
   @Get('/films')
