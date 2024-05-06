@@ -19,7 +19,7 @@ export class FilterMediaDto {
 
     @IsOptional()
     @IsNumberString()
-    nota?: number;
+    nota?: string;
 
     @IsOptional()
     @Transform(({ value }: TransformFnParams) => typeof value === 'string' ? value.split(',') : value, { toClassOnly: true })
@@ -41,5 +41,5 @@ export class FilterMediaDto {
 
     @IsOptional()
     @IsNumberString()
-    duracion?: number;
+    duracion?: string;
 }

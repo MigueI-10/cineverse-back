@@ -94,11 +94,7 @@ export class MediaService {
 
   async filterMedia(filterMediaDto: FilterMediaDto): Promise<Media[]> {
 
-    console.log(filterMediaDto);
     const { nota, anyo, duracion, episodios, tipo, generos, limit = 10, skip = 0 } = filterMediaDto;
-
-    console.log("-------------");
-    console.log(tipo, nota, generos, anyo, episodios, duracion, limit);
 
     const filter = {}
 
@@ -106,16 +102,47 @@ export class MediaService {
       filter['tipo'] = { $in: [].concat(tipo) }
     }
 
-    return await this.mediaModel.find(filter);
-    // if (search == '') return
+    if(generos !== undefined){
+      filter['genero'] = { $in: [].concat(generos) }
+    }
+    
+    if(nota !== '' && nota !== '0'){
+      filter['puntuacion'] = { $gt: Number(nota) }
+    }
 
-    // const results = await this.mediaModel
-    //   .find({ titulo: { $regex: search, $options: 'i' } }) 
-    //   .select('_id imagen titulo')
-    //   .limit(+limit)
-    //   .skip(+skip);
+    if(anyo !== undefined){
+      let arrAnyo = anyo.map((a) => Number(a));
 
-     return [];
+      const anyoMax = Math.max(...arrAnyo) + 10;
+      filter['anyo'] = { $gte: Math.min(...arrAnyo), $lte: anyoMax };
+    }
+
+    if(episodios !== undefined){
+      if(episodios.includes('+100')){
+        filter['episodios'] = { $gte: 100 }
+      }else if(episodios.includes('+50')){
+        filter['episodios'] = { $gte: 50, $lt: 100 }
+      }else if(episodios.includes('-50')){
+        filter['episodios'] = { $lt: 50 }
+      }
+    }
+
+    if(duracion !== '' && duracion !== '0'){
+      if(duracion === '3'){
+        filter['duracion'] = { $gte: 180 }
+      }else if(duracion === '2'){
+        filter['duracion'] = { $gte: 120, $lt: 180 }
+      }else if(duracion === '1'){
+        filter['duracion'] = { $gte: 60 }
+      }
+    }
+
+    const results = await this.mediaModel
+          .find(filter)
+          .limit(+limit)
+          .skip(+skip);
+
+     return results;
   }
 
 
