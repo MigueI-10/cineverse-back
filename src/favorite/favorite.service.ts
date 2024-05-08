@@ -260,4 +260,33 @@ export class FavoriteService {
       return { error: error.message }
     }
   }
+
+  async removeFavorite(id: string) {
+    try {
+      const result = await this.favoriteModel.findByIdAndUpdate(id, { esFavorito: false }, { new: true });
+      console.log(result);
+      if (!result) {
+        throw new Error(`No se encontró ningún documento con el ID ${id}`);
+      }
+      return { message: "Favorito actualizado correctamente" };
+    } catch (error) {
+      return { error: error.message }
+    }
+  }
+
+  async removeRating(id: string) {
+    try {
+      const result = await this.favoriteModel.findByIdAndUpdate(
+        id,
+        { $unset: { notaUsuario: 1 } },
+        { new: true }
+      );
+      if (!result) {
+        throw new Error(`No se encontró ningún documento con el ID ${id}`);
+      }
+      return { message: "Favorito actualizado correctamente" };
+    } catch (error) {
+      return { error: error.message }
+    }
+  }
 }

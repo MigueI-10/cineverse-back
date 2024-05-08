@@ -45,6 +45,18 @@ export class FavoriteController {
     return this.favoriteService.findFavoriteUserFilm(idUser, idMedia);
   }
 
+  @UseGuards(AuthGuard) 
+  @Patch('removeFromFavorite/:id')
+  removeFavorite(@Param('id') id: string) {
+    return this.favoriteService.removeFavorite(id);
+  }
+
+  @UseGuards(AuthGuard) 
+  @Patch('removeFromRatings/:id')
+  removeRating(@Param('id') id: string) {
+    return this.favoriteService.removeRating(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.favoriteService.findOne(+id);
