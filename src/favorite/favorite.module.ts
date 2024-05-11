@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { FavoriteController } from './favorite.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { Favorite, FavoriteSchema } from './entities/favorite.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
+import { MediaModule } from 'src/media/media.module';
 
 @Module({
   controllers: [FavoriteController],
@@ -21,7 +22,8 @@ import { AuthModule } from 'src/auth/auth.module';
       signOptions: { expiresIn: '6h' },
     }),
     
-    AuthModule
+    AuthModule, 
+    forwardRef(() => MediaModule),
   ], exports: [
     FavoriteService, MongooseModule.forFeature([{name: Favorite.name, schema: FavoriteSchema}]),
   ]

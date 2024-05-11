@@ -7,12 +7,14 @@ import { Favorite } from './entities/favorite.entity';
 import { Model, Types } from 'mongoose';
 import { createWriteStream } from 'fs';
 import { SearchFavoriteDto } from './dto/search-favorite.dto';
+import { Media } from 'src/media/entities/media.entity';
 
 @Injectable()
 export class FavoriteService {
 
   constructor(
     @InjectModel(Favorite.name) private favoriteModel: Model<Favorite>,
+    @InjectModel(Media.name) private mediaModel: Model<Media>,
     private jwtService: JwtService,
   ) {
 
@@ -40,6 +42,7 @@ export class FavoriteService {
       //si el usuario solo marca nota meter un false en favorito
       if (createFavoriteDto.notaUsuario !== undefined) {
         createFavoriteDto.esFavorito = false;
+        await this.updateMoviePoints(createFavoriteDto.idPelicula)
       }
 
       const createdFavorite = new this.favoriteModel(createFavoriteDto);
@@ -190,7 +193,7 @@ export class FavoriteService {
     }
 
     const movieObjectId = new Types.ObjectId(movieId);
-  
+    console.log(movieObjectId);
     const existingResult = await this.favoriteModel.findOne({
       idPelicula: movieObjectId,
     });
@@ -242,11 +245,37 @@ export class FavoriteService {
         return { message: "No se encontró ningún documento con este id" };
       }
       console.log(result)
+      if(result.notaUsuario !== undefined){
+
+        
+        await this.updateMoviePoints(result.idPelicula._id)
+
+
+      }
       return { message: "Favoritos actualizados correctamente" };
 
     } catch (error) {
       return { error: error.message }
     }
+  }
+
+  async updateMoviePoints(idPelicula: string){
+    const notaNueva = await this.calculateAverageRatingForMovie(idPelicula)
+
+        // console.log("la nueva nota es " + notaNueva);
+
+        const nuevoUpdate = await this.mediaModel.findByIdAndUpdate(
+          idPelicula,
+          { $set: { puntuacion: notaNueva } },
+          { new: true }
+        );
+      
+        if (!nuevoUpdate) {
+          return { message: "No se encontró ningún documento con este id" };
+        }
+      
+        console.log(nuevoUpdate);
+        return { message: "Campo 'nota' actualizado correctamente en Media" };
   }
 
   async remove(id: string) {

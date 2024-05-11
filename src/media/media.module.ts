@@ -24,7 +24,9 @@ import { FavoriteModule } from 'src/favorite/favorite.module';
       signOptions: { expiresIn: '6h' },
     }),
     
-    AuthModule, CommentsModule, FavoriteModule
-  ]
+    AuthModule, 
+    CommentsModule, 
+    FavoriteModule
+  ], exports: [MediaService, MongooseModule.forFeature([{name: Media.name, schema: MediaSchema}]),]
 })
 export class MediaModule {}
