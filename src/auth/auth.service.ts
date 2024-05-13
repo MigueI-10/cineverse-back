@@ -26,6 +26,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) { }
 
+  private urlFront = "http://localhost:4200/"
+
 
   async create(createUserDto: CreateUserDto): Promise<User> {
 
@@ -87,7 +89,7 @@ export class AuthService {
      */
 
     const tokenEmail = this.getJwtToken({ id: user._id });
-    const verificationLink = `http://localhost:4200/activate-account/${tokenEmail}`;
+    const verificationLink = `${this.urlFront}/activate-account/${tokenEmail}`;
 
     this.sendEmail(user.email, verificationLink);
 
@@ -110,13 +112,6 @@ export class AuthService {
       throw new UnauthorizedException('Not valid credentials');
     }
 
-    // if (!user) {
-    //   throw new UnauthorizedException('Not valid credentials - email');
-    // }
-
-    // if (!bcryptjs.compareSync(password, user.password)) {
-    //   throw new UnauthorizedException('Not valid credentials - password');
-    // }
     /**
      * para el control del email
      */
@@ -220,7 +215,7 @@ export class AuthService {
       }
 
       const tokenPassword = this.getJwtToken({ id: user._id });
-      const verificationLink = `http://localhost:4200/reset-password/${tokenPassword}`;
+      const verificationLink = `${this.urlFront}/reset-password/${tokenPassword}`;
 
       this.sendMailPassword(user.email, verificationLink);
 
@@ -250,14 +245,12 @@ export class AuthService {
         decoded = this.jwtService.verify(token);
         console.log("Token decodificado: ", decoded);
 
-        // Resto del código para manejar el token decodificado...
       } catch (error) {
         throw new Error('Token inválido');
-        // Aquí puedes agregar código para manejar el error, como devolver un mensaje de error específico
-        //return { message: error.message };
+
       }
 
-      // Extrae el ID de usuario del token decodificado
+
       const userId = decoded.id;
       console.log("La id extraida del token es " + userId);
 
@@ -589,7 +582,7 @@ export class AuthService {
                 <div class="row">
                     <div class="col">
                         <h1 class="mt-4">Has sido baneado de la plataforma!</h1>
-                        <p>Hello ${username}:</p>
+                        <p>Hola ${username}:</p>
                         <p>Lamentamos informarte que tu cuenta ha sido suspendida temporalmente debido a una violación de nuestros términos de servicio. La suspensión es efectiva de inmediato y tu acceso a la plataforma ha sido restringido durante un periodo de 15 días.</p>
                         <p class="lead">Razón del Baneo: <strong>Comentarios Ofensivos y con Spoilers al resto de usuarios</strong></p>
 
