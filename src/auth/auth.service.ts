@@ -26,7 +26,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) { }
 
-  private urlFront = "http://localhost:4200/"
+  // private urlFront = "http://localhost:4200/"
+  private urlFront = "https://cineverse-mike.netlify.app/"
 
 
   async create(createUserDto: CreateUserDto): Promise<User> {
