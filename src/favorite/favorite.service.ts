@@ -42,12 +42,16 @@ export class FavoriteService {
       //si el usuario solo marca nota meter un false en favorito
       if (createFavoriteDto.notaUsuario !== undefined) {
         createFavoriteDto.esFavorito = false;
-        await this.updateMoviePoints(createFavoriteDto.idPelicula)
+        
       }
 
       const createdFavorite = new this.favoriteModel(createFavoriteDto);
       console.log(createdFavorite);
-      return await createdFavorite.save();
+
+      await createdFavorite.save()
+      await this.updateMoviePoints(createFavoriteDto.idPelicula)
+
+      return createdFavorite;
       // return { message: `Favorito creado correctamente` };
     } catch (error) {
       return { error: error.message }
@@ -193,11 +197,11 @@ export class FavoriteService {
     }
 
     const movieObjectId = new Types.ObjectId(movieId);
-    console.log(movieObjectId);
+   
     const existingResult = await this.favoriteModel.findOne({
       idPelicula: movieObjectId,
     });
-
+    
     // Si ya existe un favorito, retorna un error
     if (!existingResult) {
       return { error:  'Esta pelicula  no existe'} 
@@ -259,6 +263,7 @@ export class FavoriteService {
     }
   }
 
+  //actualizamos la puntuacion de la película
   async updateMoviePoints(idPelicula: string){
     const notaNueva = await this.calculateAverageRatingForMovie(idPelicula)
 
