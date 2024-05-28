@@ -56,7 +56,6 @@ export class AuthService {
   }
 
   async verifyRecaptcha(token: string): Promise<boolean> {
-    const secretKey = 'tu_clave_secreta';
     const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', null, {
       params: {
         secret: process.env.SITE_KEY_CAPTCHA,
