@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -184,7 +184,7 @@ export class MediaService {
 
     const pelicula = (await this.mediaModel.findById(id).populate('actores', 'nombre imagen _id'));
     if (!pelicula) {
-      return { message: "Esta pelicula/serie no existe" }
+      throw new NotFoundException('Esta película/serie no existe');
     }
 
     console.log(pelicula);

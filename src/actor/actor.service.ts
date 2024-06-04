@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateActorDto } from './dto/create-actor.dto';
 import { UpdateActorDto } from './dto/update-actor.dto';
 import { Actor } from './entities/actor.entity';
@@ -39,7 +39,7 @@ export class ActorService {
   findOne(id: string) {
 
     if (!Types.ObjectId.isValid(id)) {
-      return {message: 'El ID de actor proporcionado no es válido.'}
+      throw new NotFoundException( 'El ID de actor proporcionado no es válido.')
     }
 
     return this.actorModel.findById(id);
@@ -49,7 +49,7 @@ export class ActorService {
     try {
 
       if (!Types.ObjectId.isValid(id)) {
-        return {message: 'El ID de actor proporcionado no es válido.'}
+        throw new NotFoundException( 'El ID de actor proporcionado no es válido.')
       }
       
       const result = await this.actorModel.findByIdAndUpdate(id, updateActorDto, { new: true });
